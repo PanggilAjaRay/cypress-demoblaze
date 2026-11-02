@@ -2,7 +2,8 @@ describe('Demoblaze Product Details', () => {
   beforeEach(() => {
     cy.visit('https://www.demoblaze.com/')
   });
-    it(' Verifikasi daftar produk tampil di halaman utama', () => {
+    it('Verifikasi daftar produk tampil di halaman utama', () => {
+    cy.get('.card', { timeout: 10000 }).should('exist');
     cy.get('.card').should('have.length.greaterThan', 0);
     cy.get('.card-title').first().should('be.visible');
     cy.get('.card-img-top').first().should('be.visible');
@@ -47,14 +48,12 @@ describe('Demoblaze Product Details', () => {
 
   it('Verifikasi add to cart dan pop-up alert konfirmasi', () => {
     cy.get('.card-title a').first().click();
-    
-    // tangkap window alert bawaan browser
-    const alertStub = cy.stub().as('alertStub');
-    cy.on('window:alert', alertStub);
-
-    cy.get('.btn-success').contains('Add to cart').click().then(() => {
-      expect(alertStub).to.have.been.calledWith('Product added');
+    cy.get('.btn-success').contains('Add to cart').should('be.visible');
+    cy.window().then((win) => {
+      cy.stub(win, 'alert').as('alertStub');
     });
+    cy.get('.btn-success').contains('Add to cart').click();
+    cy.get('@alertStub').should('have.been.calledOnceWith', 'Product added');
   });
 
   it('Verifikasi rapid click pada tombol kategori produk', () => {
